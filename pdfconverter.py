@@ -1,6 +1,7 @@
-import img2pdf
 import argparse
-import os
+import glob
+from PIL import Image
+from functools import cmp_to_key
 
 header = """
                               ,      \    /      ,
@@ -33,14 +34,27 @@ start = args.start
 end = args.end
 
 print("Converting...")
-images = []
-for num in range(start, end+1):
-    filepath = "{0}/{1}.jpg".format(folderName, num)
-    with open(filepath, "rb") as image:
-        images.append(image.read())
 
-with open("{0}.pdf".format(folderName), "wb") as file:
-    file.write(img2pdf.convert(images))
+images = []
+
+def cmp(a, b):
+    an = int(a.split('/')[1].split('.')[0])
+    bn = int(b.split('/')[1].split('.')[0])
+
+    if an < bn:
+        return -1
+    if an == bn:
+        return 0
+    if an > bn:
+        return 1
+
+for e in sorted(glob.glob(f"{folderName}/*.jpg"), key=cmp_to_key(cmp)):
+    try:
+        images.append(Image.open(e))
+    except:
+        pass
+
+images[0].save("{0}.pdf".format(folderName), "PDF", resolution=100.0, save_all=True, append_images=images[1:])
 
 print("\rFinished. Press any key to continue")
 input()
