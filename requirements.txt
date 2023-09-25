@@ -1,0 +1,3 @@
+requests
+argparse
+img2pdf @ git+https://github.com/josch/img2pdf@main
